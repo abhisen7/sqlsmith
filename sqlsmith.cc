@@ -25,6 +25,8 @@ using boost::regex_match;
 #include "dump.hh"
 #include "impedance.hh"
 #include "dut.hh"
+#include <cstring>
+#include <string>
 
 #ifdef HAVE_LIBSQLITE3
 #include "sqlite.hh"
@@ -34,6 +36,8 @@ using boost::regex_match;
 #include "monetdb.hh"
 #endif
 
+ 
+#include "firebolt.hh"
 #include "postgres.hh"
 
 using namespace std;
@@ -62,7 +66,7 @@ int main(int argc, char *argv[])
   cerr << PACKAGE_NAME " " GITREV << endl;
 
   map<string,string> options;
-  regex optregex("--(help|log-to|verbose|target|sqlite|monetdb|version|dump-all-graphs|dump-all-queries|seed|dry-run|max-queries|rng-state|exclude-catalog)(?:=((?:.|\n)*))?");
+  regex optregex("--(help|log-to|verbose|target|sqlite|monetdb|firebolt|version|dump-all-graphs|dump-all-queries|seed|dry-run|max-queries|rng-state|exclude-catalog)(?:=((?:.|\n)*))?");
   
   for(char **opt = argv+1 ;opt < argv+argc; opt++) {
     smatch match;
@@ -78,6 +82,7 @@ int main(int argc, char *argv[])
   if (options.count("help")) {
     cerr <<
       "    --target=connstr     postgres database to send queries to" << endl <<
+      "    --firebolt=URI       Firebolt database server to send queries to" <<endl <<
 #ifdef HAVE_LIBSQLITE3
       "    --sqlite=URI         SQLite database to send queries to" << endl <<
 #endif
@@ -118,6 +123,9 @@ int main(int argc, char *argv[])
 	cerr << "Sorry, " PACKAGE_NAME " was compiled without MonetDB support." << endl;
 	return 1;
 #endif
+      }
+      else if(options.count("firebolt")){
+    schema = make_shared<schema_fb>(options["firebolt"]);
       }
       else
 	schema = make_shared<schema_pqxx>(options["target"], options.count("exclude-catalog"));
