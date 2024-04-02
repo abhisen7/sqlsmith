@@ -6,6 +6,8 @@ bin_PROGRAMS = sqlsmith
 
 DUT = postgres.cc
 
+DUT += firebolt.cc
+
 if DUT_MONETDB
 DUT += monetdb.cc
 endif
@@ -19,7 +21,7 @@ sqlsmith_SOURCES = relmodel.cc schema.cc $(DUT)	 			\
     random.cc prod.cc expr.cc grammar.cc log.cc dump.cc impedance.cc	\
     sqlsmith.cc
 
-sqlsmith_LDADD = $(LIBPQXX_LIBS) $(MONETDB_MAPI_LIBS) $(BOOST_REGEX_LIB) $(POSTGRESQL_LIBS)
+sqlsmith_LDADD = $(LIBPQXX_LIBS) $(MONETDB_MAPI_LIBS) $(BOOST_REGEX_LIB) $(POSTGRESQL_LIBS) -lcurl
 
 AM_LDFLAGS = $(BOOST_LDFLAGS) $(POSTGRESQL_LDFLAGS)
 AM_CPPFLAGS = $(BOOST_CPPFLAGS) $(LIBPQXX_CFLAGS) $(POSTGRESQL_CPPFLAGS) $(MONETDB_MAPI_CFLAGS) -Wall -Wextra
