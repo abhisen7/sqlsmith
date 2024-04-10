@@ -437,7 +437,6 @@ dut_fb::dut_fb(std::string URI)
 
 void dut_fb::test(const std::string &statement){
 
-
     header[0]='\0';
     exec_query(fb_url,statement.c_str(), dut_callback, header_callback);
     if(!regex_search(header,re_header_200)){
