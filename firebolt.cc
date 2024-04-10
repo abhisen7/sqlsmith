@@ -12,8 +12,8 @@ int c=0;
 
 std::string IS_query_table= "select table_name,table_type from information_schema.tables where table_type != 'VIEW';"; // Only deal with DIMENSION/FACT table schemas
 std::string IS_query_column= "select column_name,data_type from information_schema.columns where table_name = "; 
-std::vector<table> tab_; // we use this vector first to push the table schema info, and then copy the elements to schema::tables vector
-std::vector<column> col_; 
+std::vector<table> tab_; // we use this vector first to push the table info, and then copy the elements to schema::tables vector
+std::vector<column> col_; // we use this vector first to push the column info, and then copy the elements to schema::tables.cols vector
 char header[CURL_MAX_HTTP_HEADER];
 
 
@@ -102,7 +102,7 @@ size_t schema_fb::table_callback(char* ptr, size_t size, size_t resp_size, void*
             
         }
 
-        p=_ss_table_name.str(); // store the FB table_name
+        p=_ss_table_name.str();
         _ss_table_name.clear();
     
         table tab(p,"public",true,true);
@@ -140,7 +140,7 @@ size_t schema_fb::col_callback(char* ptr, size_t size, size_t resp_size, void* u
             
         }
 
-        p.first=_ss_col_name.str(); // store the FB column name
+        p.first=_ss_col_name.str(); 
 
         for (int j=position; j<=line.length();j++){
             if(!isspace(line.c_str()[j]))
@@ -156,7 +156,7 @@ size_t schema_fb::col_callback(char* ptr, size_t size, size_t resp_size, void* u
         }
     
       
-        p.second=_ss_col_type.str(); // store the FB column data-type 
+        p.second=_ss_col_type.str();
 
         _ss_col_name.clear();
         _ss_col_type.clear();
