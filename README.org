@@ -17,6 +17,7 @@ the fuzzer for Firebolt specific data-types and functions.
 ** Dependencies
 - C++11
 - libpqxx
+- libcurl4-openssl-dev (For Ubuntu & Debian)
 
 optional:
 - boost::regex in case your std::regex is broken
