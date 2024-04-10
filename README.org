@@ -7,21 +7,12 @@
 SQLsmith is a random SQL query generator.  Its paragon is [[https://embed.cs.utah.edu/csmith/][Csmith]],
 which proved valuable for quality assurance in C compilers.
 
-It currently supports generating queries for PostgreSQL, SQLite 3 and
-MonetDB.  To add support for another RDBMS, you need to implement two
-classes providing schema information about and connectivity to the
-device under test.
+This is a public fork of the original upstream, intended for the purpose of integrating Firebolt into SQLsmith, and is
+currently undergoing rapid development for Firebolt CI fuzzing.
 
-Besides developers of the RDBMS products, users developing extensions
-might also be interested in exposing their code to SQLsmith's random
-workload.
+This fork is currently maintained by Product Security, but contributions from Engineering are heavily encouraged to fine tune
+the fuzzer for Firebolt specific data-types and functions.
 
-Since 2015, it found 118 bugs in alphas, betas and releases in the
-aforementioned products, including security vulnerabilities in
-released versions.  Additional bugs were squashed in extensions and
-libraries such as orafce and glibc.
-
-    https://github.com/anse1/sqlsmith/wiki#score-list
 
 ** Dependencies
 - C++11
@@ -61,14 +52,15 @@ for its connection to avoid this.
 
 Example invocations:
 
+: # testing Firebolt
+: sqlsmith --verbose --firebolt="http://localhost:8123/?database=local_dev_db&use_standard_sql=1"
 : # testing Postgres
 : sqlsmith --verbose --target="host=/tmp port=65432 dbname=regression"
 : # testing SQLite
 : sqlsmith --verbose --sqlite="file:$HOME/.mozilla/firefox/places.sqlite?mode=ro"
 : # testing MonetDB
 : sqlsmith --verbose --monetdb="mapi:monetdb://localhost:50000/smith"
-: # testing Firebolt
-: sqlsmith --verbose --firebolt=http://localhost:8123/?database=local_dev_db&use_standard_sql=1
+
 
 The following options are currently supported:
 

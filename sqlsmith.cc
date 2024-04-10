@@ -26,7 +26,7 @@ using boost::regex_match;
 #include "impedance.hh"
 #include "dut.hh"
 #include <cstring>
-#include <string>
+#include <string> 
 
 #ifdef HAVE_LIBSQLITE3
 #include "sqlite.hh"
@@ -63,7 +63,9 @@ extern "C" void cerr_log_handler(int)
 
 int main(int argc, char *argv[])
 {
-  cerr << PACKAGE_NAME " " GITREV << endl;
+  // cerr << PACKAGE_NAME " " GITREV << endl;
+
+  cerr << "\nSQLSmith fuzzing started...\n" << endl;
 
   map<string,string> options;
   regex optregex("--(help|log-to|verbose|target|sqlite|monetdb|firebolt|version|dump-all-graphs|dump-all-queries|seed|dry-run|max-queries|rng-state|exclude-catalog)(?:=((?:.|\n)*))?");
@@ -82,7 +84,7 @@ int main(int argc, char *argv[])
   if (options.count("help")) {
     cerr <<
       "    --target=connstr     postgres database to send queries to" << endl <<
-      "    --firebolt=URI       Firebolt database server to send queries to" <<endl <<
+      "    --firebolt=URI       Firebolt database server to send queries to" << endl <<
 #ifdef HAVE_LIBSQLITE3
       "    --sqlite=URI         SQLite database to send queries to" << endl <<
 #endif
@@ -124,11 +126,11 @@ int main(int argc, char *argv[])
 	return 1;
 #endif
       }
-      else if(options.count("firebolt")){
+      else if (options.count("firebolt")){
     schema = make_shared<schema_fb>(options["firebolt"]);
       }
-      else
-	schema = make_shared<schema_pqxx>(options["target"], options.count("exclude-catalog"));
+    else
+	  schema = make_shared<schema_pqxx>(options["target"], options.count("exclude-catalog")); 
 
       scope scope;
       long queries_generated = 0;
@@ -147,7 +149,7 @@ int main(int argc, char *argv[])
       if (options.count("log-to"))
 	loggers.push_back(make_shared<pqxx_logger>(
 	     options.count("sqlite") ? options["sqlite"] : options["target"],
-	     options["log-to"], *schema));
+	     options["log-to"], *schema)); 
 
       if (options.count("verbose")) {
 	auto l = make_shared<cerr_logger>();
@@ -195,59 +197,75 @@ int main(int argc, char *argv[])
 	return 1;
 #endif
       }
-      else
-	dut = make_shared<dut_libpq>(options["target"]);
-
-      while (1) /* Loop to recover connection loss */
-      {
-	try {
-            while (1) { /* Main loop */
-
-	    if (options.count("max-queries")
-		&& (++queries_generated > stol(options["max-queries"]))) {
-	      if (global_cerr_logger)
-		global_cerr_logger->report();
-	      return 0;
-	    }
-	    
-	    /* Invoke top-level production to generate AST */
-	    shared_ptr<prod> gen = statement_factory(&scope);
-
-	    for (auto l : loggers)
-	      l->generated(*gen);
-	  
-	    /* Generate SQL from AST */
-	    ostringstream s;
-	    gen->out(s);
-
-	    /* Try to execute it */
-	    try {
-	      dut->test(s.str());
-	      for (auto l : loggers)
-		l->executed(*gen);
-	    } catch (const dut::failure &e) {
-	      for (auto l : loggers)
-		try {
-		  l->error(*gen, e);
-		} catch (runtime_error &e) {
-		  cerr << endl << "log failed: " << typeid(*l).name() << ": "
-		       << e.what() << endl;
-		}
-	      if ((dynamic_cast<const dut::broken *>(&e))) {
-		/* re-throw to outer loop to recover session. */
-		throw;
-	      }
-	    }
-	  }
-	}
-	catch (const dut::broken &e) {
-	  /* Give server some time to recover. */
-	  this_thread::sleep_for(milliseconds(1000));
-	}
+      else if(options.count("firebolt")) {
+        dut = make_shared<dut_fb>(options["firebolt"]);
       }
+      else
+	    dut = make_shared<dut_libpq>(options["target"]);
+
+      while (1) //Parent process that starts sqlsmith in CI will monitor execution time and kill it
+      {
+	      /*try 
+        {
+          while (1) // Main loop 
+          { */
+            if (options.count("max-queries")
+          && (++queries_generated > stol(options["max-queries"]))) {
+              if (global_cerr_logger)
+          global_cerr_logger->report();
+              return 0;
+            }
+	    
+          // Invoke top-level production to generate AST 
+          shared_ptr<prod> gen = statement_factory(&scope);
+
+          for (auto l : loggers)
+            l->generated(*gen);
+            
+
+            // Generate SQL from AST 
+            ostringstream s;
+            gen->out(s);
+
+            // Try to execute it 
+            try {
+              dut->test(s.str());
+              for (auto l : loggers)
+                l->executed(*gen);
+            } 
+        
+          catch (const dut::failure &e) {
+            for (auto l : loggers)
+              try {
+                l->error(*gen, e);
+              } 
+              catch (runtime_error &e) {
+                cerr << endl << "log failed: " << typeid(*l).name() << ": "
+                    << e.what() << endl;
+              }
+            
+            
+            // To-do: Return cURL connection errors to dut_fb->test(), so we can catch (const dut::broken &e) under this
+
+            /* 
+              if ((dynamic_cast<const dut::broken *>(&e))) { 
+              // re-throw to outer loop to recover session.  
+                throw;
+              } */
+              
+          }
+          
+      }
+      /* catch (const dut::broken &e) { 
+        // Give server some time to recover.  
+        this_thread::sleep_for(seconds(1));
+      } */ 
+    
     }
+
   catch (const exception &e) {
     cerr << e.what() << endl;
     return 1;
   }
+    
 }
