@@ -26,7 +26,7 @@ optional:
 
 ** Building on Debian
 
-: apt-get install build-essential autoconf autoconf-archive libpqxx-dev libboost-regex-dev libsqlite3-dev
+: apt-get install build-essential autoconf autoconf-archive libpqxx-dev libboost-regex-dev libsqlite3-dev libcurl4-openssl-dev
 : cd sqlsmith
 : autoreconf -i # Avoid when building from a release tarball
 : ./configure
