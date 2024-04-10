@@ -11,7 +11,7 @@ Option(USE_UPSTREAM_LIBPQXX "Fetch and use libpqxx from Github.")
 # define our executable early, so we can set the properties, based on our dependencies
 add_executable(sqlsmith)
 target_sources(sqlsmith PRIVATE 
-        relmodel.cc schema.cc random.cc prod.cc expr.cc grammar.cc log.cc dump.cc impedance.cc firebolt.cc sqlsmith.cc postgres.cc)
+        relmodel.cc schema.cc random.cc prod.cc expr.cc grammar.cc log.cc dump.cc impedance.cc sqlsmith.cc postgres.cc)
 
 target_link_libraries(sqlsmith PostgreSQL::PostgreSQL CURL::libcurl)
 
