@@ -7,7 +7,7 @@
 SQLsmith is a random SQL query generator.  Its paragon is [[https://embed.cs.utah.edu/csmith/][Csmith]],
 which proved valuable for quality assurance in C compilers.
 
-This is a public fork of the original upstream, intended for the purpose of integrating Firebolt into SQLsmith, and is
+This is a public fork of the original [[https://github.com/anse1/sqlsmith][upstream]], intended for the purpose of integrating Firebolt into SQLsmith, and is
 currently undergoing rapid development for Firebolt CI fuzzing.
 
 This fork is currently maintained by Firebolt Security Research team, but contributions from Engineering are heavily encouraged to fine tune
