@@ -13,7 +13,7 @@ add_executable(sqlsmith)
 target_sources(sqlsmith PRIVATE 
         relmodel.cc schema.cc random.cc prod.cc expr.cc grammar.cc log.cc dump.cc impedance.cc sqlsmith.cc postgres.cc)
 
-target_link_libraries(sqlsmith PostgreSQL::PostgreSQL CURL::libcurl)
+target_link_libraries(sqlsmith PostgreSQL::PostgreSQL)
 
 # Workaround for outdated cmake packages on debian
 set(PostgreSQL_ADDITIONAL_VERSIONS 11 12 13 14)
