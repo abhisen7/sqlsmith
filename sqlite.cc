@@ -254,7 +254,7 @@ schema_sqlite::schema_sqlite(std::string &conninfo, bool no_catalog)
   true_literal = "1";
   false_literal = "0";
 
-  generate_indexes();
+  //generate_indexes();
   sqlite3_close(db);
   db = 0;
 }
@@ -277,8 +277,8 @@ void dut_sqlite::test(const std::string &stmt)
   rc = sqlite3_exec(db, stmt.c_str(), dut_callback, 0, &zErrMsg);
   if( rc!=SQLITE_OK ){
     try {
-      if (regex_match(zErrMsg, e_syntax))
-	throw dut::syntax(zErrMsg);
+      if (regex_match(zErrMsg, e_syntax)){
+	throw dut::syntax(zErrMsg); }
       else if (regex_match(zErrMsg, e_user_abort)) {
 	sqlite3_free(zErrMsg);
 	return;
